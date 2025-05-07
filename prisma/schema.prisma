@@ -1,0 +1,66 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model employees {
+  emp_id      Int     @id @default(autoincrement())
+  birth_date  DateTime
+  first_name  String  @db.VarChar(14)
+  last_name   String  @db.VarChar(16)
+  gender      String  @db.VarChar(1)
+  hire_date   DateTime
+  salaries    salaries[]
+  dept_emp    dept_emp[]
+  dept_manager dept_manager[]
+  titles      titles[]
+}
+
+model salaries {
+  emp_id    Int     @unique
+  salary    Int
+  from_date DateTime
+  to_date   DateTime
+  employee  employees @relation(fields: [emp_id], references: [emp_id])
+  @@id([emp_id, from_date])
+}
+
+model departments {
+  dept_id   Int     @id @default(autoincrement())
+  dept_name String  @db.VarChar(40)
+  dept_emp  dept_emp[]
+  dept_manager dept_manager[]
+}
+
+model dept_emp {
+  emp_id    Int
+  dept_id   Int
+  from_date DateTime
+  to_date   DateTime
+  employee  employees @relation(fields: [emp_id], references: [emp_id])
+  department departments @relation(fields: [dept_id], references: [dept_id])
+  @@id([emp_id, dept_id])
+}
+
+model dept_manager {
+  emp_id    Int
+  dept_id   Int
+  from_date DateTime
+  to_date   DateTime
+  employee  employees @relation(fields: [emp_id], references: [emp_id])
+  department departments @relation(fields: [dept_id], references: [dept_id])
+  @@id([emp_id, dept_id])
+}
+
+model titles {
+  emp_id    Int
+  title     String  @db.VarChar(50)
+  from_date DateTime
+  to_date   DateTime
+  employee  employees @relation(fields: [emp_id], references: [emp_id])
+  @@id([emp_id, title, from_date])
+}
